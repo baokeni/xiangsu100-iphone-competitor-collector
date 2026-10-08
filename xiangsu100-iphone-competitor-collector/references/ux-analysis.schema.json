@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Evidence-bounded iPhone UX analysis",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "research_context",
+    "research_review",
+    "product",
+    "executive_summary",
+    "journey",
+    "information_architecture",
+    "screen_reviews",
+    "findings",
+    "strengths",
+    "limitations"
+  ],
+  "properties": {
+    "schema_version": {"const": 2},
+    "research_context": {
+      "type": "object",
+      "required": ["stage", "target_product", "positioning", "business_constraints", "core_questions", "prior_research_provided", "baseline"],
+      "properties": {
+        "stage": {"enum": ["exploration", "deepening"]},
+        "target_product": {"$ref": "#/$defs/text"},
+        "positioning": {"$ref": "#/$defs/text"},
+        "business_constraints": {"$ref": "#/$defs/text"},
+        "core_questions": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/text"}},
+        "prior_research_provided": {"type": "boolean"},
+        "baseline": {"type": "array", "items": {
+          "type": "object", "required": ["id", "kind", "claim", "source"],
+          "properties": {
+            "id": {"$ref": "#/$defs/text"}, "claim": {"$ref": "#/$defs/text"}, "source": {"$ref": "#/$defs/text"},
+            "kind": {"enum": ["evidence", "hypothesis", "question"]}
+          }
+        }}
+      },
+      "allOf": [{"if": {"properties": {"prior_research_provided": {"const": true}}}, "then": {"properties": {"baseline": {"minItems": 1}}}}]
+    },
+    "research_review": {
+      "type": "object", "required": ["counterexample_search", "incremental_value", "items"],
+      "properties": {
+        "counterexample_search": {"$ref": "#/$defs/text"},
+        "incremental_value": {"$ref": "#/$defs/text"},
+        "items": {"type": "array", "items": {
+          "type": "object", "required": ["baseline_id", "outcome", "assessment", "counterevidence", "evidence"],
+          "properties": {
+            "baseline_id": {"type": ["string", "null"]},
+            "outcome": {"enum": ["supported", "revised", "contradicted", "unresolved", "new"]},
+            "assessment": {"$ref": "#/$defs/text"}, "counterevidence": {"$ref": "#/$defs/text"},
+            "limitation": {"$ref": "#/$defs/text"},
+            "evidence": {"type": "array", "items": {"$ref": "#/$defs/text"}}
+          },
+          "allOf": [
+            {"if": {"properties": {"outcome": {"const": "new"}}}, "then": {"properties": {"baseline_id": {"type": "null"}}}, "else": {"properties": {"baseline_id": {"$ref": "#/$defs/text"}}}},
+            {"if": {"properties": {"outcome": {"const": "unresolved"}, "evidence": {"maxItems": 0}}}, "then": {"required": ["limitation"]}, "else": {"properties": {"evidence": {"minItems": 1}}}}
+          ]
+        }}
+      }
+    },
+    "product": {
+      "type": "object",
+      "required": ["app", "platform", "task", "persona", "success_criteria", "scope"]
+    },
+    "executive_summary": {
+      "type": "object",
+      "required": ["overall", "strongest", "weakest", "top_finding_ids"],
+      "properties": {"top_finding_ids": {"type": "array", "maxItems": 3, "uniqueItems": true, "items": {"$ref": "#/$defs/text"}}}
+    },
+    "journey": {"type": "array", "minItems": 1},
+    "information_architecture": {
+      "type": "object",
+      "required": ["entry_points", "structure", "labels", "wayfinding", "scalability", "management_loop"]
+    },
+    "screen_reviews": {"type": "array", "minItems": 1},
+    "findings": {"type": "array", "items": {
+      "type": "object", "required": ["task_barrier", "priority_reason", "recommendation"],
+      "properties": {
+        "priority_reason": {"$ref": "#/$defs/text"},
+        "task_barrier": {
+          "type": "object", "required": ["user_decision", "missing_support", "consequence"],
+          "properties": {"user_decision": {"$ref": "#/$defs/text"}, "missing_support": {"$ref": "#/$defs/text"}, "consequence": {"$ref": "#/$defs/text"}}
+        },
+        "recommendation": {
+          "type": "object", "required": ["change", "rationale", "tradeoffs", "validation", "decision", "applicability", "business_alignment", "complexity_cost", "minimum_change", "alternative"],
+          "properties": {
+            "decision": {"enum": ["adopt", "adapt", "keep", "defer", "reject"]},
+            "change": {"$ref": "#/$defs/text"}, "rationale": {"$ref": "#/$defs/text"}, "tradeoffs": {"$ref": "#/$defs/text"}, "validation": {"$ref": "#/$defs/text"},
+            "applicability": {"$ref": "#/$defs/text"}, "complexity_cost": {"$ref": "#/$defs/text"}, "minimum_change": {"$ref": "#/$defs/text"}, "alternative": {"$ref": "#/$defs/text"},
+            "business_alignment": {
+              "type": "object", "required": ["basis", "analysis", "source_or_gap"],
+              "properties": {"basis": {"enum": ["known", "assumed", "unknown"]}, "analysis": {"$ref": "#/$defs/text"}, "source_or_gap": {"$ref": "#/$defs/text"}}
+            }
+          }
+        }
+      }
+    }},
+    "strengths": {"type": "array"},
+    "limitations": {"type": "array", "minItems": 1}
+  },
+  "$defs": {"text": {"type": "string", "minLength": 1, "pattern": "\\S"}}
+}
