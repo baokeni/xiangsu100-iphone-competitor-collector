@@ -61,6 +61,8 @@ git clone https://github.com/baokeni/xiangsu100-iphone-competitor-collector.git
 
 Skill 包含设备适配指导和静态检查/规划脚本。历史工程曾使用 Mac+iPhone 路线，其他组合及每位使用者的当前设备都需要单独核对，安装 Skill 不代表真机采集已就绪。
 
+真机检测或适配报错时，AI先查证并处理，优先用可用工具代办常规电脑操作；需要本人操作时，一次只引导一步、说明成功标志并复查。无需同学自行查教程或反复执行整套排错命令。详见[适配排错与引导](xiangsu100-iphone-competitor-collector/references/platform-adaptation.md#故障时由ai先处理降低同学操作成本)；Windows安卓USB连接另见[ADB分支诊断](xiangsu100-iphone-competitor-collector/references/windows-adb-diagnostics.md)。规则与静态检查更新不代表每台设备都已实测。
+
 ## 来源说明
 
 方法参考与第三方许可说明见 [third-party-notices.md](xiangsu100-iphone-competitor-collector/references/third-party-notices.md)。设备流程的参考项目也保留在执行指南中。

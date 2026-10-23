@@ -10,6 +10,18 @@ Only when the selected route is local Mac+iPhone, inspect the existing execution
 - If they do not exist, do not attempt App operations yet. Create an independent iOS proof-of-concept project, install `agent-device@0.20.8`, implement a safe wrapper and evidence store, run preflight, and only then begin the product task.
 - Never claim that the two instruction files alone provide device control. The Mac still needs Xcode, an available Apple development team, a trusted physical iPhone, Developer Mode, and a signed XCTest Runner.
 
+## Recheck current runtime state before continuing capture
+
+At each new turn that resumes device work, and after reconnect, permission/environment/version changes or session failure, recheck the selected device, current permission scope, service reachability and agent session. Reuse unchanged confirmed task scope and setup information. Prior success remains historical evidence; it cannot prove current connectivity. For Windows ADB use [Windows ADB diagnostics](windows-adb-diagnostics.md), including its bounded ordinary-PowerShell comparison.
+
+On failure, follow [AI-owned troubleshooting](platform-adaptation.md#故障时由ai先处理降低同学操作成本): investigate and perform authorized routine computer steps with available tools first. If a human-only step remains, show one action and its observable completion signal, then inspect the result and continue. Do not turn each failed check into a command list for the student or assume access to their computer when tools are connected elsewhere.
+
+Keep ADB server, phone transport, agent-device daemon/session and Snapshot Helper as separate states. A lost agent session with a healthy ADB device calls for session recovery, not an ADB restart. On session recovery, capture a fresh screenshot/structure and resolve current elements again. Check the selected version's actual help; do not assume newer `doctor`, helper or session commands exist.
+
+Before the first target-App smoke test, verify any required Helper is available. If an OEM install confirmation or phone lock blocks it, ask the user to complete that specific on-device step, then retry the failed step once with fresh evidence. Authentication stays with the user. Do not treat missing Helper, a later lock screen or session expiry as the proven cause of an earlier empty device list.
+
+Record connection success, target-App screenshot success, page-structure success, safe navigation/return and saved evidence separately. Set capture readiness only after the required smoke checks pass on the selected device/App; a screenshot alone is partial capability. Research completion still requires the planned task coverage and analysis. Static `inspect` and `simulate` never perform these runtime checks.
+
 Only for real-device collection, extend that contract with:
 
 - App name and bundle ID (iOS) or package/activity (Android), selected backend and explicit device identity.

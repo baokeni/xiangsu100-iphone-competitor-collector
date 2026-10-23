@@ -10,12 +10,13 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-TOOLS = ('node', 'adb', 'java', 'appium', 'agent-device', 'xcrun', 'xcodebuild')
+TOOLS = ('node', 'adb', 'hdc', 'java', 'appium', 'agent-device', 'xcrun', 'xcodebuild')
 HOSTS = ('macos', 'windows', 'linux', 'unknown')
-PHONES = ('ios', 'android', 'unknown')
+PHONES = ('ios', 'android', 'harmonyos_android', 'harmonyos', 'harmonyos_unknown', 'unknown')
 SOURCES = {
     'agent-device': 'https://oss.callstack.com/agent-device/docs/installation',
     'android': 'https://github.com/appium/appium-uiautomator2-driver#requirements',
+    'harmonyos': 'https://oss.callstack.com/agent-device/docs/commands#harmonyos-command-boundary',
     'ios-non-mac': 'https://appium.github.io/appium-xcuitest-driver/latest/guides/non-macos-hosts/',
 }
 
@@ -68,23 +69,33 @@ def plan(profile: dict, *, mode: str = 'capture', simulated: bool = False) -> di
                       next_steps=['直接登记材料与未知项，运行分析和报告校验；不进入设备适配。'])
         return result
     required = []
-    if phone == 'unknown':
+    if phone in ('unknown', 'harmonyos_unknown'):
         result.update(routing_status='needs_device_identity', next_steps=['先由用户说明手机系统，或在已授权采集任务内只读发现设备；不能由电脑系统推断手机。'])
+        if phone == 'harmonyos_unknown':
+            result['next_steps'] = ['确认华为手机型号和完整系统版本，区分Android兼容系统与原生鸿蒙；不能仅凭品牌或“鸿蒙”选择ADB/HDC，也不先安装两套工具。']
         return result
     if host == 'unknown':
         result.update(routing_status='needs_host_identity', next_steps=['确认实际运行终端及执行主机；不要将WSL或远程终端误当本机Windows。'])
         return result
-    if phone == 'android':
-        if host == 'macos' and tools.get('agent-device'):
-            result['backend'] = 'agent-device-android'
-            result['alternatives'] = ['appium-uiautomator2']
-            required = ['node', 'adb', 'agent-device']
-        else:
-            result['backend'] = 'appium-uiautomator2'
-            result['alternatives'] = ['agent-device-android: 核对本机版本及主机支持后可候选']
-            required = ['node', 'adb', 'java', 'appium']
+    if phone in ('android', 'harmonyos_android'):
+        result['backend'] = 'agent-device-android'
+        result['alternatives'] = ['appium-uiautomator2: 优先路线出现已定位且无法修复的阻塞后再评估']
+        required = ['node', 'adb', 'agent-device']
         result['source_urls'] = [SOURCES['android'], SOURCES['agent-device']]
-        result['requirements'] = ['核对Node/SDK/驱动版本兼容性并锁定版本', '手机USB调试及用户RSA授权', '明确选择一台设备，处理offline/unauthorized', '适配目标App包名、实时元素结构和证据接口']
+        result['requirements'] = ['优先ADB + agent-device + Snapshot Helper，核对所装版本的Node/SDK/主机支持并锁定依赖', '手机USB调试及用户RSA授权；Helper安装提示由同学在手机上完成', '明确选择一台设备，处理offline/unauthorized', '适配目标App包名、实时元素结构和证据接口']
+        if host == 'windows':
+            result['requirements'].append('核对Windows架构、OEM USB驱动及原生终端；不能将WSL的Linux工具链与Windows adb.exe混用')
+            result['requirements'].extend([
+                '先读references/windows-adb-diagnostics.md：区分本地通信/服务失败、空列表、unauthorized、offline、多设备和device；接口枚举不等于ADB可用',
+                '运行诊断由已授权的独立适配器步骤执行；优先复用兼容的健康ADB服务，不默认kill-server；满足条件时仅引导一次普通PowerShell初始化后回Codex复查',
+                '每轮继续设备任务前复查权限作用域、服务和agent-device会话；Helper安装/解锁由用户完成，目标App截图不等于完整采集就绪',
+            ])
+    elif phone == 'harmonyos':
+        result['backend'] = 'agent-device-harmonyos'
+        required = ['node', 'hdc', 'agent-device']
+        result['source_urls'] = [SOURCES['agent-device'], SOURCES['harmonyos']]
+        result['requirements'] = ['优先HDC + 支持HarmonyOS的agent-device + ArkUI uitest；核对系统/API版本和当前设备capabilities，不套用Android APK Helper', '检查HDC命令行工具或DevEco SDK工具路径；不因PATH缺失就断定未安装', '由同学完成开发者模式、USB调试及设备授权，明确选择一台设备', '实现目标App安全封装和证据接口，在同学环境验证截图、页面结构、安全导航及返回']
+        result['alternatives'] = ['优先路线经诊断仍缺必要能力时，依据官方HDC/uitest接口隔离补充适配器；不得退回Android Helper或盲目坐标回放']
     elif host == 'macos':
         result['backend'] = 'agent-device-ios'
         result['routing_status'] = 'existing_route_needs_preflight' if profile.get('existing_ios_wrapper') else 'needs_adaptation'
@@ -107,9 +118,12 @@ def plan(profile: dict, *, mode: str = 'capture', simulated: bool = False) -> di
             result['requirements'] = ['确认iOS版本以及预装/外部WDA条件', '不满足本机候选条件时评估已授权的远端或同学成功方案', '缺条件时保留材料分析，不能宣称所有Windows+iPhone方案不可行']
     result['missing_tools'] = [name for name in required if not tools.get(name)]
     result['next_steps'] = [
-        '优先整理同学成功方案的主机/手机版本、工具版本、步骤与输出；记录为用户报告，复现后再升级为已验证。',
+        '先向同学说明检测结果、推荐路线、AI将完成的配置及需要手动确认的步骤；只追问影响分流的缺失信息。',
+        '检测/适配失败先由AI读取现有证据、查对应方案并执行已授权修复；优先用可用终端/API或同学电脑上的电脑控制工具代操作，必要人工动作每次只给一步及成功标志，由AI复查后继续。',
+        '同学反馈成功记为user_reported；拿不到原技术路径或教师电脑无法验收，不阻塞在同学环境重建与验证。',
         '读取所选路线官方文档与本机版本，写adaptation-plan.json；只研究当前缺口，不自动遍历安装所有框架。',
         '若当前任务授权建设环境，隔离实现适配器并做本地测试；需要用户完成设备信任或系统权限时仅停在该步。',
+        '失败时保存报错，按连接/工具版本/页面能力/封装接口定位，实施最小修复后复测；同一阻塞无新证据不反复重试。',
         '完成目标App打开、读取结构、截图、安全导航和返回的留证测试，并验证交易拦截，再允许正式采集。',
     ]
     return result
