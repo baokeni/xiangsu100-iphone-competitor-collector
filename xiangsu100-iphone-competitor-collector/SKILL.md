@@ -7,6 +7,8 @@ description: Guide students through a complete mobile competitor analysis, from 
 
 Help students complete one end-to-end study: define the question → select useful competitors → reconstruct the task and relevant branches → inspect evidence → compare mechanisms → answer the question. One completed study is a valid endpoint. Report length, number of findings and redesign volume are not success metrics.
 
+When continuing a study, making a consequential research judgment or revision, or handing work over, follow [project process and AI collaboration](references/project-process-archive.md). Maintain the existing project note with attributable decisions, method adaptations, contributions and evidence; do not require a separate approval to record them. If the user only wants portfolio, interview or personal-workflow materials from an existing study, use that reference directly without restarting research or device collection.
+
 ## 1. Select the purpose and working mode
 
 Infer these from the latest request and accepted context; do not ask the user to choose again when already clear.
@@ -32,6 +34,8 @@ For Windows + Android-compatible USB capture, follow [Windows ADB diagnostics](r
 When device detection or adaptation fails, own the diagnosis: inspect available evidence, research the specific error and perform authorized fixes before handing work to the student. Use available terminal/API or computer-control tools on the student's actual execution computer for routine steps. Only when human action is necessary, give one concrete action with its success signal, then inspect the result and continue. Follow the [low-effort troubleshooting guidance](references/platform-adaptation.md#故障时由ai先处理降低同学操作成本); keep progress calm and factual, without promising a fix or requiring the student to troubleshoot.
 
 ## 2. Establish the smallest useful task brief
+
+At the first research-brief clarification, and when its scope materially changes, follow [research clarification and documentation](references/research-clarification.md): load `grill-with-docs` together with the full `grilling` and `domain-modeling` instructions. Reuse confirmed answers, ask at most three consequential questions per round, record questions and answers as they occur, and return the updated task brief plus the clarification-record link. A complete, already authorized brief does not require another interview. Follow the reference for unavailable dependencies and student distribution; never claim an unloaded Skill was invoked.
 
 Record the latest user question/goal, target task and user (label assumptions), scope, observable success criteria, source paths and known/unknown states. Record the target product and constraints when design decisions require them; exploration can have no redesign target. No full preliminary report is required.
 
@@ -78,6 +82,8 @@ For a real-run single-App design analysis, follow [single-App analysis](referenc
 Keep one current source of goals and judgments. Regenerate affected outputs before recording versions; use the delivery manifest only when several derived artifacts need synchronization. A matching hash shows freshness, not semantic correctness. If an enhanced report must be preserved with `--brief-only`, inspect its conclusions too: stale content must be revised or clearly marked historical, not presented beside a fresh brief as current.
 
 Review generated design artifacts against [research delivery](references/research-delivery.md); `implement` requires the actual current review described in [readiness review](references/readiness-review.md). Keep failed/pending checks visible. Report collection coverage, file/contract checks, semantic review, student reproduction and user outcomes separately.
+
+At handoff, update the same [project process archive](references/project-process-archive.md) and link the current report, decisions, evidence and unresolved items. Derive portfolio framing, answer-driven interview practice or a personal AI workflow when requested; these are optional uses of the record, not additional completion steps or proof of portfolio, interview or learning outcomes.
 
 ## 6. Improve the Skill using real cases
 
